@@ -1,0 +1,80 @@
+name: Run tests
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment
+        type: choice
+        required: true
+        default: qa
+        options:
+          - qa
+      browser:
+        description: Browser
+        type: choice
+        required: true
+        default: chrome
+        options:
+          - chrome
+          - firefox
+          - edge
+      tags:
+        description: tags
+        type: choice
+        required: true
+        default: "@SMOKE_TEST"
+        options:
+          - "@SMOKE_TEST"
+jobs:
+  run-selenium:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Install Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Create Config fils from template
+        run: |
+          mkdir -p src/test/resources
+          cat > src/test/resources/config.json <<EOF
+          {
+            "ENVIRONMENT": "${{ inputs.environment }}",
+            "BROWSER": "${{ inputs.browser }}",
+            "REMOTE": ${{ vars.remote }},
+            "HOST": "${{ vars.host }}",
+            "PORT": "${{ vars.port }}"
+            "RETRY": ${{ vars.retry }}
+          }
+          EOF
+      - name: Run docker compose
+        run: docker compose up -d
+      - name: Wait Grid to be ready
+        shell: bash
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:4444/wd/hub/status | grep -q '"ready":[[:space:]]*true'; then
+              echo "Selenium is ready"
+              exit 0
+            fi
+            echo "Waiting for Selenium..."
+            sleep 2
+          done
+          echo "Selenium not ready in time"
+          docker compose ps
+          docker compose logs --tail=200
+          exit 1
+      - name: run Selenium
+        run: mvn clean test -Dcucumber.filter.tags="${{inputs.tags}}"
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-report
+          path: ./reports
+
+      - name: Cleanup Docker
+        if: always()
+        run: docker compose down -v

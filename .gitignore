@@ -1,0 +1,9 @@
+reports/
+src/main/java/tests/
+Logins/Logins.xlsx
+.idea/
+target/
+logs/
+src/java/recources/dataset/environment/config.json
+/selenium-vls-project.iml
+src/test/resources/features/mytests/
