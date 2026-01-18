@@ -38,8 +38,8 @@ jobs:
           java-version: '21'
       - name: Create Config fils from template
         run: |
-          mkdir -p src/test/resources
-          cat > src/test/resources/config.json <<EOF
+          mkdir -p src/main/resources/dataset
+          cat > src/main/resources/dataset/config.json <<EOF
           {
             "ENVIRONMENT": "${{ inputs.environment }}",
             "BROWSER": "${{ inputs.browser }}",
