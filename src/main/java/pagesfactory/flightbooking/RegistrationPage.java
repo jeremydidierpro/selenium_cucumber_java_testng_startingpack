@@ -1,11 +1,15 @@
 package pagesfactory.flightbooking;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import pagesfactory.CommonPage;
 import utils.DriverFactory;
 import utils.Environment;
+import utils.Secrets;
 
 public class RegistrationPage extends CommonPage {
+    private final Logger logger = LogManager.getLogger(RegistrationPage.class);
 
     private final By firstNameTxt = By.name("firstName");
     private final By lastNameTxt = By.name("lastName");
@@ -37,6 +41,7 @@ public class RegistrationPage extends CommonPage {
     }
 
     public void enterFirstName(String firstName){
+
         mySelenium.type(firstNameTxt,firstName);
     }
 

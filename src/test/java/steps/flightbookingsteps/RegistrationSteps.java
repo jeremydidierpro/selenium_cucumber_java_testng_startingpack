@@ -1,5 +1,6 @@
 package steps.flightbookingsteps;
 
+import functions.miscellaneous.RandomMethods;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -28,10 +29,14 @@ public class RegistrationSteps {
         registrationPage.load();
     }
 
-    @When("I enter my default user's details")
-    public void i_enter_my_default_user_s_details() {
-        registrationPage.enterUserDetails("jack", "Peterson");
-        registrationPage.enterUserCredentials("email@email.com", "Password123");
+    @When("I enter the default user's details")
+    public void i_enter_the_default_user_s_details() {
+        String firstName = RandomMethods.firstName();
+        String lastName = RandomMethods.lastName();
+        String email = RandomMethods.email();
+        String password = RandomMethods.string(10);
+        registrationPage.enterUserDetails(firstName, lastName);
+        registrationPage.enterUserCredentials(email, password);
     }
 
     @When("I submit the registration")
@@ -40,12 +45,10 @@ public class RegistrationSteps {
     }
 
 
-    @Then("I am redirected registration Confirmation")
-    public void i_am_redirected_registration_confirmation() {
+    @Then("I should see the registration confirmation page")
+    public void i_should_see_the_registration_confirmation_page() {
         registrationConfirmationPage.waitPage();
         commonInstance.softly().assertThat(registrationConfirmationPage.getConfirmationMsg()).hasTextEqualTo("Registration Confirmation Page");
 
     }
-
-
 }

@@ -1,13 +1,12 @@
 package functions.sql;
 
-import exceptions.IncorrectSQLRequestException;
+import exceptions.InvalidSqlQueryException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class DBAccounts {
     private static Connection conn;
@@ -56,7 +55,7 @@ public class DBAccounts {
             prepare.executeUpdate();
         } catch (SQLException throwables) {
             logger.error(() -> throwables);
-            throw new IncorrectSQLRequestException(throwables.getMessage());
+            throw new InvalidSqlQueryException(throwables.getMessage());
         }finally {
             try {
                 assert prepare != null;

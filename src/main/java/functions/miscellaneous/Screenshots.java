@@ -16,12 +16,12 @@ public class Screenshots {
     }
 
 
-    public void takeAScreen()  {
+    public void takeAScreen(String name)  {
         File scr = screenshot.getScreenshotAs(OutputType.FILE);
         try {
-            FileUtils.copyFile(scr,new File("./screenshots/test.jpg" ));
+            FileUtils.copyFile(scr,new File("./screenshots/" + name + ".jpg"));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to save screenshot: " + name, e);
         }
     }
 

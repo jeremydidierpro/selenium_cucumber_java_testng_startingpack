@@ -1,6 +1,6 @@
 package functions.excel;
 
-import exceptions.NotFoundValueException;
+import exceptions.ValueNotFoundException;
 import functions.miscellaneous.PathFinder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -168,7 +168,7 @@ public class ExcelManager {
                 .forEach(col -> this.columnIndex = col);
         if(this.columnIndex == -1){
             logger.error(() -> "The column "+columnName+ " hasn't been found");
-            throw new NotFoundValueException("The column "+columnName+ " has not been found");
+            throw new ValueNotFoundException("The column "+columnName+ " has not been found");
         }
     }
 
@@ -183,7 +183,7 @@ public class ExcelManager {
                 .forEach(row -> this.rowIndex = row);
         if(this.rowIndex == -1){
             logger.error(() -> "The row "+rowName+ " hasn't been found");
-            throw new NotFoundValueException("The row "+rowName+ " has not been found");
+            throw new ValueNotFoundException("The row "+rowName+ " has not been found");
         }
     }
 

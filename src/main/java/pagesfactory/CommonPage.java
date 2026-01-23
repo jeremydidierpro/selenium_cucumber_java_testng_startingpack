@@ -17,6 +17,11 @@ public class CommonPage {
         this.mySelenium = new MySelenium(this.driver);
     }
 
+    /***
+     * Here you can centralize all common actions performed on your specific website
+     * (e.g., saving inner pages, waiting for loaders, refreshing inner pages).
+     */
+
 }
 
 

@@ -14,12 +14,10 @@ public class BookFlightPage extends CommonPage {
     }
 
     public void clickOnFirstSubmit(){
-        wait.elementToBeClickable(firstSubmitBtn);
         mySelenium.click(firstSubmitBtn);
     }
 
     public void gotToFlightConfirmationPage(){
-        wait.elementToBeClickable(secondSubmitBtn);
         mySelenium.click(secondSubmitBtn);
     }
 

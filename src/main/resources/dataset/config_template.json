@@ -1,7 +1,7 @@
 {
   "ENVIRONMENT": "qa",
   "BROWSER": "chrome",
-  "REMOTE": true,
+  "REMOTE": false,
   "HOST": "localhost",
   "PORT": "4444",
   "RETRY": 1

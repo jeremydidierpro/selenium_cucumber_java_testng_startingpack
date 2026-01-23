@@ -15,7 +15,7 @@ public class AccountDetails {
 
 
     /**
-     * Get all the account details
+     * Get the account details
      * @return account details as a Map
      */
     public Map<String, Object> getDetails(){

@@ -3,6 +3,7 @@ package api;
 import functions.excel.ExcelManager;
 
 import utils.Config;
+import utils.Secrets;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,17 +17,16 @@ public class Auth{
 
     /**
      * Thanks to this method we get the access token from auth and then put it into our loginFiles
-     * @param loginsFiles is the excel file where to put the login details
      */
-    public static void setToken(ExcelManager loginsFiles){
+    public static void setToken(){
         // Taking our AD logins from loginsFiles
-        String login = loginsFiles.read("login");
-        String password = loginsFiles.read("password");
+        String login = Secrets.apiUser();
+        String password = Secrets.apiPassword();
         // Creating the request body
         Map<String,String> body = new HashMap<>();
         body.put("login", login);
         body.put("password", password);
-        // Calling request to extracting access token
+        // Calling request to extract access token
         String accessToken = given()
                 .baseUri("")
                 .pathParam("environment", Config.environment())
@@ -38,8 +38,8 @@ public class Auth{
                 .log().ifError()
                 .statusCode(200)
                 .extract().path("accessToken");
-        // Writing access token in the loginsFile
-        loginsFiles.write("accessToken", "bearer "+accessToken);
+        // Writing access token in any file that fit your specific project
+        //loginsFiles.write("accessToken", "bearer "+accessToken);
     }
 
 

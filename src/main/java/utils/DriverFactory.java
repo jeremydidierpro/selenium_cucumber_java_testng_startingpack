@@ -1,6 +1,6 @@
 package utils;
 
-import exceptions.NotFoundValueException;
+import exceptions.ValueNotFoundException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Capabilities;
@@ -56,7 +56,7 @@ public class DriverFactory {
             case "chrome" -> capabilities = new ChromeOptions();
             case "edge" -> capabilities = new EdgeOptions();
             case "firefox" -> capabilities = new FirefoxOptions();
-            default -> throw new NotFoundValueException("Unsupported browser : %s".formatted(Config.browser()));
+            default -> throw new ValueNotFoundException("Unsupported browser : %s".formatted(Config.browser()));
         }
         String remoteUrl = "http://%s:%s".formatted(Config.host(), Config.port());
         try {
@@ -92,7 +92,7 @@ public class DriverFactory {
                 edgeOptions.addArguments("--window-size=1920,1080");
                 driver = new EdgeDriver(edgeOptions);
             }
-            default -> throw new NotFoundValueException("Unsupported browser: %s".formatted(Config.browser()));
+            default -> throw new ValueNotFoundException("Unsupported browser: %s".formatted(Config.browser()));
         }
     }
 

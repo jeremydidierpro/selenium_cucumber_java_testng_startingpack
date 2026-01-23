@@ -1,11 +1,12 @@
 package api;
 
-import exceptions.IncorrectAPIRequestException;
+import exceptions.InvalidApiRequestException;
 import functions.excel.ExcelManager;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.Secrets;
 
 import java.io.File;
 import java.util.HashMap;
@@ -18,10 +19,10 @@ import static io.restassured.RestAssured.given;
 public class RequestsFactory {
     protected static ExcelManager loginsFiles;
     static {
-        loginsFiles = new ExcelManager("Logins/Logins.xlsx","logins",1);
-        String authLogin = System.getProperty("AUTH_LOGIN");
-        String authPasswd = System.getProperty("AUTH_PASSWD");
-        if (authLogin != null && authLogin.trim().length() > 0) {
+        loginsFiles = new ExcelManager("logins.xlsx","logins",1);
+        String authLogin = Secrets.apiUser();
+        String authPasswd = Secrets.apiPassword();
+        if (authLogin != null && !authLogin.trim().isEmpty()) {
             loginsFiles.write("login", authLogin);
             loginsFiles.write("password", authPasswd);
         }
@@ -55,7 +56,7 @@ public class RequestsFactory {
         // Verifying the response code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
             if(response.getStatusCode()==401 || response.getStatusCode()==403 ){
-                Auth.setToken(loginsFiles);
+                Auth.setToken();
                 headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
                 response = given()
                                 .headers(headers).
@@ -68,7 +69,7 @@ public class RequestsFactory {
             }else{
                 Response finalResponse = response;
                 logger.error(()-> "****** Something went wrong with GET request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
-                throw new IncorrectAPIRequestException("GET " + getErrorMessage(expectedStatusCode, url, response));
+                throw new InvalidApiRequestException("GET " + getErrorMessage(expectedStatusCode, url, response));
             }
         }
         return response;
@@ -96,8 +97,8 @@ public class RequestsFactory {
 
         // Verifying the response code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
-            if(response.getStatusCode()==403){
-                Auth.setToken(loginsFiles);
+            if(response.getStatusCode()==401){
+                Auth.setToken();
                 headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
                 response = given()
                         .headers(headers)
@@ -112,7 +113,7 @@ public class RequestsFactory {
                 Response finalResponse = response;
                 logger.error(()-> "****** Something went wrong with POST request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
                 logger.info(() -> "****** The body of the failed request was : "+ body);
-                throw new IncorrectAPIRequestException("POST " + getErrorMessage(expectedStatusCode, url, response));
+                throw new InvalidApiRequestException("POST " + getErrorMessage(expectedStatusCode, url, response));
             }
         }
         return response;
@@ -141,8 +142,8 @@ public class RequestsFactory {
 
         // Verifying the response code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
-            if(response.getStatusCode()==403){
-                Auth.setToken(loginsFiles);
+            if(response.getStatusCode()==401){
+                Auth.setToken();
                 headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
                 response = given()
                         .headers(headers)
@@ -156,7 +157,7 @@ public class RequestsFactory {
             }else{
                 Response finalResponse = response;
                 logger.error(()-> "****** Something went wrong with POST request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
-                throw new IncorrectAPIRequestException("POST " + getErrorMessage(expectedStatusCode, url, response));
+                throw new InvalidApiRequestException("POST " + getErrorMessage(expectedStatusCode, url, response));
             }
         }
         return response;
@@ -181,8 +182,8 @@ public class RequestsFactory {
 
         // Verifying the response code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
-            if(response.getStatusCode()==403){
-                Auth.setToken(loginsFiles);
+            if(response.getStatusCode()==401){
+                Auth.setToken();
                 headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
                 response = given()
                         .headers(headers).
@@ -195,7 +196,7 @@ public class RequestsFactory {
             }else{
                 Response finalResponse = response;
                 logger.error(()-> "****** Something went wrong with DELETE request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
-                throw new IncorrectAPIRequestException("DELETE " + getErrorMessage(expectedStatusCode, url, response));
+                throw new InvalidApiRequestException("DELETE " + getErrorMessage(expectedStatusCode, url, response));
             }
         }
         return response;

@@ -1,9 +1,9 @@
 package functions.sql;
 
-import functions.excel.ExcelManager;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utils.EnvironmentPOJO;
+import utils.Secrets;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,10 +21,10 @@ public class DataBaseManager {
      * Initiate the connexion
      */
     public static Connection connectDB(String dataBaseName){
-        String server = "";
+        String server = Secrets.sqlServer();
 
         Properties props = new Properties();
-        String password = "";
+        String password = Secrets.sqlPassword();
         String url = "jdbc:postgresql://" + server +"/"+dataBaseName+"?currentSchema="+dataBaseName+"_own";
         props.setProperty("user", dataBaseName);
         props.setProperty("password", password);

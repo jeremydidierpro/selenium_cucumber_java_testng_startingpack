@@ -7,3 +7,6 @@ logs/
 src/java/recources/dataset/config.json
 /selenium-cucumber-project.iml
 src/test/resources/features/mytests/
+.env
+.env.*
+!.env.sample
