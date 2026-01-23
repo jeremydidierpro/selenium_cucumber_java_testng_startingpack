@@ -49,7 +49,7 @@ jobs:
             "RETRY": ${{ vars.retry }}
           }
           EOF
-      - name: Run docker compose
+      - name: Run docker-compose
         run: docker compose up -d
       - name: Wait Grid to be ready
         shell: bash
