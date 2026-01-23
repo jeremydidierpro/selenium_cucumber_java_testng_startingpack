@@ -59,7 +59,7 @@ jobs:
               echo "Selenium is ready"
               exit 0
             fi
-            echo "Waiting for Selenium..."
+            echo "Waiting for Selenium...."
             sleep 2
           done
           echo "Selenium not ready in time"
