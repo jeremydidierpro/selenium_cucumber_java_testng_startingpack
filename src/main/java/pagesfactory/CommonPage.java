@@ -18,7 +18,7 @@ public class CommonPage {
     }
 
     /***
-     * Here you can centralize all common actions performed on your specific website
+     * Centralizes all common actions performed on the website
      * (e.g., saving inner pages, waiting for loaders, refreshing inner pages).
      */
 

@@ -22,7 +22,7 @@ public class DriverFactory {
     private final Logger logger = LogManager.getLogger(DriverFactory.class);
 
     /**
-     * This method verifies the provided browser, the provided host and if the remote is activated. Then set the right browser
+     * This method verifies the provided browser, the provided host, and whether remote mode is enabled. Then it sets the correct driver.
      */
     public void setUpDriver() {
         if (Config.remote()) {
@@ -48,7 +48,7 @@ public class DriverFactory {
     }
 
     /**
-     * This method set up the remote webdriver
+     * This method sets up the remote WebDriver.
      */
     public void setupRemoteWebDriver() {
         Capabilities capabilities;
@@ -68,7 +68,7 @@ public class DriverFactory {
     }
 
     /**
-     * This method set up the webDriver
+     * This method sets up the webDriver
      */
     public void setupLocalWebDriver() {
         switch (Config.browser().toLowerCase()) {
@@ -97,10 +97,10 @@ public class DriverFactory {
     }
 
     /**
-     * This method set up the default size of the browser.
+     * This method sets up the default browser size.
      */
     public void setDriverSize() {
-        //We have to set a size to chrome_headless because the maximise method is not working on it.
+        // We have to set a size for chrome_headless because the maximize method does not work on it.
         if (Config.browser().equalsIgnoreCase("chrome_headless")) {
             driver.manage().window().setSize(new Dimension(1920, 1080));
         } else {

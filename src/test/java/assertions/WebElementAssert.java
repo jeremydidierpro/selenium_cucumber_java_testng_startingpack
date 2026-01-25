@@ -41,7 +41,7 @@ public class WebElementAssert extends AbstractAssert<WebElementAssert, WebElemen
     public WebElementAssert hasAttributeValue(String attr, String value){
         isNotNull();
         if(!actual.getAttribute(attr).trim().equalsIgnoreCase(value)){
-            failWithMessage("Expected element to have attribute <%s> with value <%s>. But the value was <%s>",attr, value, actual.getAttribute(attr));
+            failWithMessage("Expected the element to have attribute <%s> with value <%s>. But the actual value was <%s>",attr, value, actual.getAttribute(attr));
         }
         return this;
     }
@@ -49,7 +49,7 @@ public class WebElementAssert extends AbstractAssert<WebElementAssert, WebElemen
         isNotNull();
         String text = actual.getText().trim();
         if(!text.equalsIgnoreCase(value)){
-            failWithMessage("Expected element to have text equals to <%s>. But the value was <%s>", value, actual.getText());
+            failWithMessage("Expected the element to have text equals to <%s>. But the actual value was <%s>", value, actual.getText());
         }
         return this;
     }
@@ -57,28 +57,28 @@ public class WebElementAssert extends AbstractAssert<WebElementAssert, WebElemen
         isNotNull();
         String title = actual.getAttribute("title").trim();
         if(!title.equalsIgnoreCase(value)  && !title.equalsIgnoreCase(value+"\\n" + "Click to follow link")){
-            failWithMessage("Expected element to have attribute 'title' with value <%s>. But the value was <%s>", value, actual.getAttribute("title"));
+            failWithMessage("Expected the element to have attribute 'title' with value <%s>. But the actual value was <%s>", value, actual.getAttribute("title"));
         }
         return this;
     }
     public WebElementAssert hasValueEqualTo(String value){
         isNotNull();
         if(!actual.getAttribute("value").trim().equalsIgnoreCase(value)){
-            failWithMessage("Expected element to have attribute 'value' with value <%s>. But the value was <%s>", value, actual.getAttribute("value"));
+            failWithMessage("Expected the element to have attribute 'value' with value <%s>. But the actual value was <%s>", value, actual.getAttribute("value"));
         }
         return this;
     }
     public WebElementAssert isReadableOnly(){
         isNotNull();
         if(Objects.isNull(actual.getAttribute("readonly"))){
-            failWithMessage("Expected element to be readable only. But was not...");
+            failWithMessage("Expected the element to be readable only. But was not...");
         }
         return this;
     }
     public WebElementAssert isEditable(){
         isNotNull();
         if(Objects.nonNull(actual.getAttribute("readonly"))){
-            failWithMessage("Expected element to be editable. But was not...");
+            failWithMessage("Expected the element to be editable. But was not...");
         }
         return this;
     }

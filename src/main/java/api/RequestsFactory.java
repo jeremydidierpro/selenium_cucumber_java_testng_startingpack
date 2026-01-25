@@ -1,35 +1,17 @@
 package api;
 
 import exceptions.InvalidApiRequestException;
-import functions.excel.ExcelManager;
-import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utils.Secrets;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import static io.restassured.RestAssured.defaultParser;
 import static io.restassured.RestAssured.given;
 
 
 public class RequestsFactory {
-    protected static ExcelManager loginsFiles;
-    static {
-        loginsFiles = new ExcelManager("logins.xlsx","logins",1);
-        String authLogin = Secrets.apiUser();
-        String authPasswd = Secrets.apiPassword();
-        if (authLogin != null && !authLogin.trim().isEmpty()) {
-            loginsFiles.write("login", authLogin);
-            loginsFiles.write("password", authPasswd);
-        }
-    }
-    private static final String HEADER = "headers";
     private static final String AUTHORIZATION = "Authorization";
-    private static final String ACCESS_TOKEN = "accessToken";
     private static final Logger logger = LogManager.getLogger(RequestsFactory.class);
 
     private RequestsFactory(){
@@ -39,37 +21,32 @@ public class RequestsFactory {
     /**
      * This method, by providing the request, the endPoint and the expected status code, makes a GET call, verifies the token and extracts the response
      */
-    public static Response get(Map<String, Object> request, int expectedStatusCode){
-        defaultParser = Parser.JSON;
-        String url = request.get("url").toString();
-        Map<String, Object> headers = (HashMap<String, Object>) request.get(HEADER);
-        headers.replace(AUTHORIZATION,loginsFiles.read(ACCESS_TOKEN));
-        logger.info(() -> "****** Trying to GET resources with API REQUEST : "+ url);
-        // Collecting the request object
-        Response response = given()
-                                .headers(headers).
-                            when()
-                                .get(url).
-                            then()
-                                .extract().response();
+    public static Response get(RequestSpecification reqSpec, String endPoint, int expectedStatusCode){
+        logger.info(() -> "****** Trying to GET resources with an API REQUEST.");
+        // Building the request object
+        Response response = given(reqSpec)
+                .header(AUTHORIZATION,TokenContext.getAccessToken())
+                .when()
+                .get(endPoint)
+                .then()
+                .extract().response();
 
-        // Verifying the response code and renewing the access token if needed
+        // Verifying the response status code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
             if(response.getStatusCode()==401 || response.getStatusCode()==403 ){
-                Auth.setToken();
-                headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
-                response = given()
-                                .headers(headers).
-                            when()
-                                .get(url).
-                        then()
+                refreshToken();
+                response = given(reqSpec)
+                        .header(AUTHORIZATION, TokenContext.getAccessToken())
+                        .when()
+                        .get(endPoint)
+                        .then()
                         .log().ifError()
                         .statusCode(expectedStatusCode)
                         .extract().response();
             }else{
                 Response finalResponse = response;
-                logger.error(()-> "****** Something went wrong with GET request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
-                throw new InvalidApiRequestException("GET " + getErrorMessage(expectedStatusCode, url, response));
+                logger.error(()-> "****** Something went wrong with the GET request : "+ getErrorMessage(expectedStatusCode, finalResponse));
+                throw new InvalidApiRequestException("GET " + getErrorMessage(expectedStatusCode, response));
             }
         }
         return response;
@@ -79,85 +56,74 @@ public class RequestsFactory {
     /**
      * This method, by providing the request, the endPoint and the expected status code, makes a POST call, verifies the token and extracts the response
      */
-    public static Response post(Map<String, Object> request, int expectedStatusCode){
-        defaultParser = Parser.JSON;
-        String url = request.get("url").toString();
-        HashMap<String, Object> headers = (HashMap<String, Object>) request.get(HEADER);
-        headers.replace(AUTHORIZATION,loginsFiles.read(ACCESS_TOKEN));
-        String body = request.get("body").toString();
-        logger.info(() -> "****** Trying to POST resources with API REQUEST : "+ url);
+    public static Response post(RequestSpecification reqSpec, String endPoint, int expectedStatusCode){
+        logger.info(() -> "****** Trying to POST resources with an API REQUEST.");
         // Collecting the request object
-        Response response = given()
-                .headers(headers)
-                .body(body).
-                        when()
-                .post(url).
-                        then()
+        Response response = given(reqSpec)
+                .header(AUTHORIZATION,TokenContext.getAccessToken())
+                .when()
+                .post(endPoint)
+                .then()
                 .extract().response();
 
         // Verifying the response code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
-            if(response.getStatusCode()==401){
-                Auth.setToken();
-                headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
-                response = given()
-                        .headers(headers)
-                        .body(body).
-                                when()
-                        .post(url).
-                                then()
+            if(response.getStatusCode()==401 || response.getStatusCode()==403){
+                refreshToken();
+                response = given(reqSpec)
+                        .header(AUTHORIZATION, TokenContext.getAccessToken())
+                        .when()
+                        .post(endPoint)
+                        .then()
                         .log().ifError()
                         .statusCode(expectedStatusCode)
                         .extract().response();
             }else{
                 Response finalResponse = response;
-                logger.error(()-> "****** Something went wrong with POST request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
-                logger.info(() -> "****** The body of the failed request was : "+ body);
-                throw new InvalidApiRequestException("POST " + getErrorMessage(expectedStatusCode, url, response));
+                logger.error(()-> "****** Something went wrong with the POST request : "+ getErrorMessage(expectedStatusCode, finalResponse));
+                throw new InvalidApiRequestException("POST " + getErrorMessage(expectedStatusCode, response));
             }
         }
         return response;
     }
 
     /**
-     * This method, by providing the request, the endPoint and the expected status code, makes a with a file to a body call, verifies the token and extracts the response
+     * This method, by providing the request, the endPoint and the expected status code, makes a POST call with a file in the body, verifies the token and extracts the response
      */
-    public static Response postFile(Map<String, Object> request, int expectedStatusCode, String pathToFile){
-        defaultParser = Parser.JSON;
-        String url = request.get("url").toString();
-        HashMap<String, Object> headers = (HashMap<String, Object>) request.get(HEADER);
-        headers.replace(AUTHORIZATION,loginsFiles.read(ACCESS_TOKEN));
-        headers.put("Content-Type", "multipart/form-data");
-        headers.put("Connection", "keep-alive");
-        headers.put("Accept-Encoding", "gzip, deflate, br");
-        logger.info(() -> "****** Trying to POST resources with API REQUEST : "+ url);
+    public static Response postFile(RequestSpecification reqSpec, String endPoint, int expectedStatusCode, String pathToFile){
+        logger.info(() -> "****** Trying to POST resources with an API REQUEST.");
         // Collecting the request object
-        Response response = given()
-                .headers(headers)
-                .multiPart("attachment", new File(pathToFile)).
-                        when()
-                .post(url).
-                        then()
+        Response response = given(reqSpec)
+                .header(AUTHORIZATION,TokenContext.getAccessToken())
+                .header("Content-Type", "multipart/form-data")
+                .header("Connection", "keep-alive")
+                .header("Accept-Encoding", "gzip, deflate, br")
+                .multiPart("attachment", new File(pathToFile))
+                .when()
+                .post(endPoint)
+                .then()
                 .extract().response();
 
         // Verifying the response code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
-            if(response.getStatusCode()==401){
-                Auth.setToken();
-                headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
-                response = given()
-                        .headers(headers)
-                        .multiPart("attachment", new File(pathToFile)).
-                                when()
-                        .post(url).
-                                then()
+            if(response.getStatusCode()==401 || response.getStatusCode()==403){
+                refreshToken();
+                response = given(reqSpec)
+                        .header(AUTHORIZATION, TokenContext.getAccessToken())
+                        .header("Content-Type", "multipart/form-data")
+                        .header("Connection", "keep-alive")
+                        .header("Accept-Encoding", "gzip, deflate, br")
+                        .multiPart("attachment", new File(pathToFile))
+                        .when()
+                        .post(endPoint)
+                        .then()
                         .log().ifError()
                         .statusCode(expectedStatusCode)
                         .extract().response();
             }else{
                 Response finalResponse = response;
-                logger.error(()-> "****** Something went wrong with POST request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
-                throw new InvalidApiRequestException("POST " + getErrorMessage(expectedStatusCode, url, response));
+                logger.error(()-> "****** Something went wrong with the POST request : "+ getErrorMessage(expectedStatusCode,finalResponse));
+                throw new InvalidApiRequestException("POST " + getErrorMessage(expectedStatusCode, response));
             }
         }
         return response;
@@ -166,44 +132,53 @@ public class RequestsFactory {
     /**
      * This method, by providing the request, the endPoint and the expected status code, makes a DELETE call, verifies the token and extracts the response
      */
-    public static Response delete(Map<String, Object> request, int expectedStatusCode){
-        defaultParser = Parser.JSON;
-        String url = request.get("url").toString();
-        HashMap<String, Object> headers = (HashMap<String, Object>) request.get(HEADER);
-        headers.replace(AUTHORIZATION,loginsFiles.read(ACCESS_TOKEN));
-        logger.info(() -> "****** Trying to DELETE resources with API REQUEST : "+ url);
+    public static Response delete(RequestSpecification reqSpec, String endPoint,  int expectedStatusCode){
+        logger.info(() -> "****** Trying to DELETE resources with an API REQUEST.");
         // Collecting the request object
-        Response response = given()
-                .headers(headers).
-                        when()
-                .delete(url).
-                        then()
+        Response response = given(reqSpec)
+                .header(AUTHORIZATION,TokenContext.getAccessToken())
+                .when()
+                .delete(endPoint)
+                .then()
                 .extract().response();
 
         // Verifying the response code and renewing the access token if needed
         if(response.getStatusCode() != expectedStatusCode ){
-            if(response.getStatusCode()==401){
-                Auth.setToken();
-                headers.replace(AUTHORIZATION, loginsFiles.read(ACCESS_TOKEN));
-                response = given()
-                        .headers(headers).
-                                when()
-                        .delete(url).
-                                then()
+            if(response.getStatusCode()==401 || response.getStatusCode()==403){
+                refreshToken();
+                response = given(reqSpec)
+                        .header(AUTHORIZATION, TokenContext.getAccessToken())
+                        .when()
+                        .delete(endPoint)
+                        .then()
                         .log().ifError()
                         .statusCode(expectedStatusCode)
                         .extract().response();
             }else{
                 Response finalResponse = response;
-                logger.error(()-> "****** Something went wrong with DELETE request : "+ getErrorMessage(expectedStatusCode, url, finalResponse));
-                throw new InvalidApiRequestException("DELETE " + getErrorMessage(expectedStatusCode, url, response));
+                logger.error(()-> "****** Something went wrong with the DELETE request : "+ getErrorMessage(expectedStatusCode, finalResponse));
+                throw new InvalidApiRequestException("DELETE " + getErrorMessage(expectedStatusCode, response));
             }
         }
         return response;
     }
 
-    private static String getErrorMessage(int expectedStatusCode, String url, Response response) {
-        return url + " Expected status was " + expectedStatusCode + " but actual status is " + response.getStatusCode();
+    private static void refreshToken(){
+        String tokenBefore = TokenContext.getAccessToken();
+        TokenContext.refreshLock().lock();
+        try {
+            String tokenNow = TokenContext.getAccessToken();
+            boolean alreadyRefreshed = tokenNow != null && !tokenNow.equals(tokenBefore);
+            if (!alreadyRefreshed) {
+                TokenContext.setAccessToken(Auth.setToken()); // updates TokenContext internally
+            }
+        } finally {
+            TokenContext.refreshLock().unlock();
+        }
+    }
+
+    private static String getErrorMessage(int expectedStatusCode, Response response) {
+        return "Expected status code was " + expectedStatusCode + " but the actual status is " + response.getStatusCode();
     }
 
 }

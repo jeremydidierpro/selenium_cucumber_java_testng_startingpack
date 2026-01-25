@@ -24,18 +24,18 @@ public class MySelenium {
     }
 
     public WebElement findElement(By locator){
-        logger.log(Level.INFO, () -> String.format("****** Trying to find elenment with locator %s", locator));
+        logger.log(Level.INFO, () -> String.format("****** Trying to find element with locator %s", locator));
         return this.waiters.elementToBePresent(locator);
     }
 
     public List<WebElement> findElements(By locator){
-        logger.log(Level.INFO, () -> String.format("****** Trying to find elenment with locator %s", locator));
+        logger.log(Level.INFO, () -> String.format("****** Trying to find element with locator %s", locator));
         this.waiters.allElementsToBePresent(locator);
         return this.driver.findElements(locator);
     }
 
     /**
-     * Thanks to this method, we try to enter 10 times the value before throwing an error
+     * With this method, we try to enter the value up to 10 times...
      * @param locator to send keys in.
      * @param value to send
      */
@@ -60,7 +60,7 @@ public class MySelenium {
 
 
     /**
-     * Thanks to this method, we try to click 10 times before throwing an error
+     * With this method, we try to click up to 10 times...
      * @param locator
      */
     public WebElement click(By locator){
@@ -94,7 +94,7 @@ public class MySelenium {
     }
 
     /**
-     * If the checkbox is unselected, select it.
+     * If the checkbox is not selected, select it.
      * @param locator
      */
     public void selectCheckBox(By locator){
@@ -104,7 +104,7 @@ public class MySelenium {
         }
     }
     /**
-     * If the checkbox is selected, unselect it.
+     * If the checkbox is selected, deselect it.
      * @param locator
      */
     public void unselectCheckBox(By locator){
@@ -114,7 +114,7 @@ public class MySelenium {
         }
     }
     /**
-     * This method will clear the input and enter thr new value
+     * This method clears the input and enters the new value.
      * @param locator
      * @param value
      */
@@ -151,7 +151,7 @@ public class MySelenium {
      * @param locator to send keys in.
      * @param value to send
      */
-    public void typeAndPressTEnter(By locator, String value){
+    public void typeAndPressEnter(By locator, String value){
         WebElement element = type(locator,value);
         element.sendKeys(Keys.ENTER);
     }
@@ -177,7 +177,7 @@ public class MySelenium {
         select.selectByIndex(index);
     }
     /**
-     * By giving the first window, this methods return the second window in order to switch to it.
+     * Given the first window, this method returns the second window so you can switch to it.
      * @param firstWindow
      * @return window Id
      */
@@ -190,7 +190,7 @@ public class MySelenium {
         return  null;
     }
     /**
-     * This method return true if element is present and displayed and false if element is not present
+     * This method returns true if the element is present and displayed, and false otherwise.
      * @param locator
      * @return boolean
      */

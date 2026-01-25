@@ -13,13 +13,13 @@ public class DBAccounts {
     private static final Logger logger = LogManager.getLogger(DBAccounts.class);
 
     /***
-     * Make the constructor private to not be able to instantiate it
+     * Make the constructor private to prevent instantiation.
      */
     private DBAccounts(){
     }
 
     /***
-     * Generate A new connection if the current one is null on the first call.
+     * Generate a new connection if the current one is null on the first call.
      */
     private static void getConnection(){
         if(conn==null){
@@ -30,7 +30,7 @@ public class DBAccounts {
     }
 
     /***
-     * Call closeDB method to close the bdd the to conn parameter
+     * Call the closeDB method to close the database linked to the conn parameter.
      */
     public static void closeDBAccounts(){
         if(conn!=null){
@@ -41,7 +41,7 @@ public class DBAccounts {
     }
 
     /***
-     * By using this method, the account will be updated.
+     * Using this method, the account will be updated.
      * @param userEmail
      */
     public static void updateAccount(String userEmail){
@@ -51,7 +51,7 @@ public class DBAccounts {
             prepare = conn.prepareStatement("UPDATE account SET last_name = 'Josh' WHERE  email= ?");
             prepare.setString(1,userEmail);
             PreparedStatement finalPrepare = prepare;
-            logger.info(() -> "****** Trying to execute SQL request:: " + finalPrepare.toString());
+            logger.info(() -> "****** Trying to execute SQL request: " + finalPrepare.toString());
             prepare.executeUpdate();
         } catch (SQLException throwables) {
             logger.error(() -> throwables);
@@ -66,6 +66,5 @@ public class DBAccounts {
             }
         }
     }
-
 
 }

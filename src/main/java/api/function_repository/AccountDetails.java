@@ -3,7 +3,6 @@ package api.function_repository;
 import api.object_repository.Accounts;
 import io.restassured.response.Response;
 
-import java.util.List;
 import java.util.Map;
 
 public class AccountDetails {
@@ -28,7 +27,4 @@ public class AccountDetails {
     public String getAccountId(){
         return this.details.jsonPath().getString("id");
     }
-
-
-
 }

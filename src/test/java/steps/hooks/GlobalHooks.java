@@ -33,11 +33,11 @@ public class GlobalHooks {
     @Before
     public void testInitialization(Scenario scenario){
         setupDriver();
-        Markup markupEnv = MarkupHelper.createLabel("Environment : " + Config.environment(), ExtentColor.GREEN);
+        Markup markupEnv = MarkupHelper.createLabel("Environment: " + Config.environment(), ExtentColor.GREEN);
         ExtentCucumberAdapter.getCurrentStep().info(markupEnv);
-        Markup markupBrowser = MarkupHelper.createLabel("Browser : " + Config.browser(), ExtentColor.GREEN);
+        Markup markupBrowser = MarkupHelper.createLabel("Browser: " + Config.browser(), ExtentColor.GREEN);
         ExtentCucumberAdapter.getCurrentStep().info(markupBrowser);
-        logger.info(()-> "** The test '"+ scenario.getName() +"' has just started on "+ Config.environment());
+        logger.info(()-> "** The test '"+ scenario.getName() +"' has just started in "+ Config.environment());
     }
 
 
@@ -47,7 +47,7 @@ public class GlobalHooks {
     }
 
     /**
-     * Second method to be run after the test. The target is to update the report with a screenshot if scenario failed and then close the driver
+     * Second method run after the test. The goal is to attach a screenshot to the report if the scenario failed, then close the driver.
      * @param scenario Test Case
      */
     @After(order =0)
@@ -59,15 +59,15 @@ public class GlobalHooks {
         } finally{
             driverFactory.quitDriver();
             DBAccounts.closeDBAccounts();
-            logger.info(() -> "** The test '"+ scenario.getName() +"' is finished ");
-            logger.info(() -> "The driver is CLOSED \n");
+            logger.info(() -> "** The test '"+ scenario.getName() +"' has finished ");
+            logger.info(() -> "The driver has been closed.\n");
         }
     }
 
     public void setupDriver(){
         driverFactory.setUpDriver();
         this.driver = driverFactory.getDriver();
-        logger.info(() -> "The driver is UP ");
+        logger.info(() -> "The driver is UP.");
     }
 
     public void pasteScreenShotInReports(Scenario scenario){
@@ -76,6 +76,5 @@ public class GlobalHooks {
         String scrshot = newScreen.getScreenshotAs(OutputType.BASE64);
         ExtentCucumberAdapter.getCurrentStep().fail(screenshotName+".png", MediaEntityBuilder.createScreenCaptureFromBase64String(scrshot).build());
     }
-
 
 }

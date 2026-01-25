@@ -23,8 +23,8 @@ public class Waiters {
     }
 
     /**
-     * Stop thread in millis second
-     * @param millis to wait
+     * Pause the thread for the given number of milliseconds.
+     * @param millis the time to wait, in milliseconds
      */
     public void sleep(int millis){
         Uninterruptibles.sleepUninterruptibly(millis, TimeUnit.MILLISECONDS);
@@ -60,9 +60,9 @@ public class Waiters {
     }
 
     /**
-     * Needed for waiting element to have a certain text
-     * @param locator element to wait
-     * @param text to be present in the element
+     * Wait until the element contains the expected text.
+     * @param locator the element locator
+     * @param text the text expected to be present in the element
      */
     public void elementToContainsText(By locator, String text){
         try {
@@ -310,7 +310,7 @@ public class Waiters {
 
 
     public void attributeToBePresent(By locator, String attribute, int timeOutInSeconds) {
-        logger.info(() -> "****** Waiting for attribute :: " + attribute + " to be present.");
+        logger.info(() -> "****** Waiting for attribute '" + attribute + "' to be present.");
         try {
             new WebDriverWait(driver, Duration.ofSeconds(timeOutInSeconds))
                     .until(d -> driver.findElement(locator).getAttribute(attribute) != null);
@@ -320,7 +320,7 @@ public class Waiters {
         }
     }
 
-    public void attributeToContainsValue(By locator, String attribute, String value, int timeOutInSeconds) {
+    public void attributeToContainValue(By locator, String attribute, String value, int timeOutInSeconds) {
         WebDriverWait wait = getWait(timeOutInSeconds);
         try{
             wait.until(ExpectedConditions.attributeContains(driver.findElement(locator), attribute, value));
@@ -330,7 +330,7 @@ public class Waiters {
         }
     }
 
-    public void attributeToContainsValue(By locator, String attribute, String value) {
+    public void attributeToContainValue(By locator, String attribute, String value) {
         try{
             waiter.until(ExpectedConditions.attributeContains(driver.findElement(locator), attribute, value));
         }catch (TimeoutException e){

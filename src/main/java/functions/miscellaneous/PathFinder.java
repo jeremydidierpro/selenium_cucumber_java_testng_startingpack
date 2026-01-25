@@ -9,11 +9,11 @@ public class PathFinder {
 
 
     /**
-     * This method turns the relative path provided into the absolute path
-     * @param relativePath path from the root of the project
-     * @return the path from the root of the local machine
+     * This method converts the provided relative path into an absolute path.
+     * @param relativePath the path from the root of the project
+     * @return the path from the root of the project
      */
-    public static  String getPath(String relativePath){
+    public static String getPath(String relativePath){
         File file = new File(relativePath);
         return file.getAbsolutePath();
     }
