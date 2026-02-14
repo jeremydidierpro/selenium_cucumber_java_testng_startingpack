@@ -8,17 +8,17 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Waiters {
     protected WebDriver driver;
-    protected WebDriverWait waiter;
     protected final Logger logger;
+    protected int defaultTimeout = 5;
 
 
     public Waiters(WebDriver driver){
         this.driver     = driver;
-        this.waiter     = new WebDriverWait(this.driver,Duration.ofSeconds(5));
         logger = LogManager.getLogger(Waiters.class);
     }
 
@@ -31,32 +31,39 @@ public class Waiters {
     }
 
 
-    private WebDriverWait getWait(int seconds) {
+    private WebDriverWait wait(int seconds) {
         return new WebDriverWait(driver, Duration.ofSeconds(seconds));
     }
 
     public void visibilityOf(By locator){
         try {
-            waiter.until(ExpectedConditions.visibilityOf(driver.findElement(locator)));
+            wait(defaultTimeout).until(ExpectedConditions.visibilityOfElementLocated(locator));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting element to be visible. Locator={}, timeout={}s",
+                    locator, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void visibilityOf(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            wait.until(ExpectedConditions.visibilityOf(driver.findElement(locator)));
+            wait(timeOutInSeconds).until(ExpectedConditions.visibilityOfElementLocated(locator));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting element to be visible. Locator={}, timeout={}s",
+                    locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
-    public void visibilityOf_NoCatch(By locator) {
-        waiter.withTimeout(Duration.ofSeconds(1))
-                .until(ExpectedConditions.visibilityOfElementLocated(locator));
+    public boolean isVisible(By locator,int seconds) {
+        try {
+            wait(seconds).until(
+                    ExpectedConditions.visibilityOfElementLocated(locator)
+            );
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
     }
 
     /**
@@ -66,10 +73,11 @@ public class Waiters {
      */
     public void elementToContainsText(By locator, String text){
         try {
-            waiter.until(ExpectedConditions.textToBePresentInElement(driver.findElement(locator), text));
-        }catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(defaultTimeout).until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+        }catch(TimeoutException  e){
+            logger.error("Timeout waiting element to contain text={}. Locator={}, timeout={}s",
+                    text, locator, defaultTimeout, e);
+            throw e;
         }
     }
 
@@ -80,68 +88,68 @@ public class Waiters {
      * @param timeOutInSeconds timeout
      */
     public void elementToContainsText(By locator, String text, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            wait.until(ExpectedConditions.textToBePresentInElement(driver.findElement(locator), text));
-        }catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(timeOutInSeconds).until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+        }catch(TimeoutException  e){
+            logger.error("Timeout waiting element to contain text={}. Locator={}, timeout={}s",
+                    text, locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public boolean waitAndVerifyVisibilityOf(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            wait.until(ExpectedConditions.visibilityOf(driver.findElement(locator)));
+            wait(timeOutInSeconds).until(ExpectedConditions.visibilityOfElementLocated(locator));
         }catch(NoSuchElementException | TimeoutException e){
             return false;
         }
         return true;
     }
 
-    public WebElement elementToBePresent(By selector){
+    public WebElement elementToBePresent(By locator){
         try {
-            return waiter.until(ExpectedConditions.presenceOfElementLocated(selector));
-        }catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            return wait(defaultTimeout).until(ExpectedConditions.presenceOfElementLocated(locator));
+        }catch(TimeoutException e){
+            logger.error("Timeout waiting element to be present. Locator={}, timeout={}s",
+                    locator, defaultTimeout, e);
+            throw e;
         }
     }
 
     public WebElement elementToBePresent(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        } catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            return wait(timeOutInSeconds).until(ExpectedConditions.presenceOfElementLocated(locator));
+        } catch(TimeoutException e){
+            logger.error("Timeout waiting element to be present. Locator={}, timeout={}s",
+                    locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
-    public void allElementsToBePresent(By locator){
+    public List<WebElement> allElementsToBePresent(By locator){
         try {
-            waiter.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
-        }catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            return wait(defaultTimeout).until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+        }catch(TimeoutException e){
+            logger.error("Timeout waiting for all elements to be present. Locator={}, timeout={}s",
+                    locator, defaultTimeout, e);
+            throw e;
         }
     }
 
-    public void allElementsToBePresent(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
+    public List<WebElement> allElementsToBePresent(By locator, int timeOutInSeconds){
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
-        } catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            return wait(timeOutInSeconds).until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+        } catch(TimeoutException e){
+            logger.error("Timeout waiting for all elements to be present. Locator={}, timeout={}s",
+                    locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public boolean waitAndVerifyPresenceOfAll(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
-        } catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
+            wait(timeOutInSeconds).until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+        } catch(TimeoutException e){
             return false;
         }
         return true;
@@ -149,162 +157,161 @@ public class Waiters {
 
     public void untilInvisibilityOf(By locator){
         try {
-            waiter.until(ExpectedConditions.invisibilityOf(driver.findElement(locator)));
-        } catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(defaultTimeout).until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        } catch(TimeoutException e){
+            logger.error("Timeout waiting for visibility of element. Locator={}, timeout={}s",
+                    locator, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void untilInvisibilityOf(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try{
-            wait.until(ExpectedConditions.invisibilityOf(driver.findElement(locator)));
-        } catch(NoSuchElementException | StaleElementReferenceException | TimeoutException  e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(timeOutInSeconds).until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        } catch(TimeoutException  e){
+            logger.error("Timeout waiting for visibility of element. Locator={}, timeout={}s",
+                    locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public WebElement elementToBeClickable(By locator){
         try{
-            return waiter.until(ExpectedConditions.elementToBeClickable(locator));
-        }catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            return wait(defaultTimeout).until(ExpectedConditions.elementToBeClickable(locator));
+        }catch (TimeoutException e){
+            logger.error("Timeout waiting for the element to be clickable. Locator={}, timeout={}s",
+                    locator, defaultTimeout, e);
+            throw e;
         }
     }
 
     public WebElement elementToBeClickable(By locator, int timeOutInSeconds){
-        this.waiter = new WebDriverWait(driver, Duration.ofSeconds(timeOutInSeconds));
         try{
-            return waiter.until(ExpectedConditions.elementToBeClickable(driver.findElement(locator)));
-        }catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            return wait(timeOutInSeconds).until(ExpectedConditions.elementToBeClickable(locator));
+        }catch (TimeoutException e){
+            logger.error("Timeout waiting for the element to be clickable. Locator={}, timeout={}s",
+                    locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public void elementNotToBeClickable(By locator){
         try{
-            waiter.until(ExpectedConditions.not(ExpectedConditions.elementToBeClickable(driver.findElement(locator))));
-        }catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(defaultTimeout).until(ExpectedConditions.not(ExpectedConditions.elementToBeClickable(locator)));
+        }catch (TimeoutException e){
+            logger.error("Timeout waiting for the element to be not clickable. Locator={}, timeout={}s",
+                    locator, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void elementToBeSelected(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try{
-            wait.until(ExpectedConditions.elementToBeSelected(driver.findElement(locator)));
-        }catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(timeOutInSeconds).until(ExpectedConditions.elementToBeSelected(locator));
+        }catch (TimeoutException e){
+            logger.error("Timeout waiting for the element to be not clickable. Locator={}, timeout={}s",
+                    locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public void elementToBeSelected(By locator) {
         try{
-            waiter.until(ExpectedConditions.elementToBeSelected(driver.findElement(locator)));
-        }catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(defaultTimeout).until(ExpectedConditions.elementToBeSelected(locator));
+        }catch (TimeoutException e){
+            logger.error("Timeout waiting for the element to be selected. Locator={}, timeout={}s",
+                    locator, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void elementNotToBeSelected(By locator, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try{
-            wait.until(ExpectedConditions.not(ExpectedConditions.elementToBeSelected(driver.findElement(locator))));
-        }catch (NoSuchElementException | StaleElementReferenceException | TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            wait(timeOutInSeconds).until(ExpectedConditions.not(ExpectedConditions.elementToBeSelected(locator)));
+        }catch (TimeoutException e){
+            logger.error("Timeout waiting for the element to be selected. Locator={}, timeout={}s",
+                    locator, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public void titleToBe(String expectedTitle){
         try {
-            waiter.until(ExpectedConditions.titleIs(expectedTitle));
+            wait(defaultTimeout).until(ExpectedConditions.titleIs(expectedTitle));
         } catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the title to be present. Title={}. timeout={}s",
+                    expectedTitle, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void urlToBe(String url){
         try {
-            waiter.until(ExpectedConditions.urlToBe(url));
+            wait(defaultTimeout).until(ExpectedConditions.urlToBe(url));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the url to be present. Url={}. timeout={}s",
+                    url, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void urlContains(String fractionOfUrl){
         try {
-            waiter.until(ExpectedConditions.urlContains(fractionOfUrl));
+            wait(defaultTimeout).until(ExpectedConditions.urlContains(fractionOfUrl));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the url to contains text. Text={}. timeout={}s",
+                    fractionOfUrl, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void urlContains(String fractionOfUrl, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            wait.until(ExpectedConditions.urlContains(fractionOfUrl));
+            wait(timeOutInSeconds).until(ExpectedConditions.urlContains(fractionOfUrl));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the url to contains text. Text={}. timeout={}s",
+                    fractionOfUrl, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public void numberOfElementsToBe(By locator, int numberOfExpectedElements){
         try {
-            waiter.until(ExpectedConditions.numberOfElementsToBe(locator, numberOfExpectedElements));
+            wait(defaultTimeout).until(ExpectedConditions.numberOfElementsToBe(locator, numberOfExpectedElements));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the number of element. Locator={}, number={}, timeout={}s",
+                    locator, numberOfExpectedElements, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void numberOfElementsToBe(By locator,int numberOfExpectedElements, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            wait.until(ExpectedConditions.numberOfElementsToBe(locator, numberOfExpectedElements));
+            wait(timeOutInSeconds).until(ExpectedConditions.numberOfElementsToBe(locator, numberOfExpectedElements));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the number of element. Locator={}, number={}, timeout={}s",
+                    locator, numberOfExpectedElements, timeOutInSeconds, e);
+            throw e;
         }
     }
 
     public void numberOfWindowsToBe(int numberOfExpectedWindows){
         try{
-            waiter.until(ExpectedConditions.numberOfWindowsToBe(numberOfExpectedWindows));
+            wait(defaultTimeout).until(ExpectedConditions.numberOfWindowsToBe(numberOfExpectedWindows));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the number of windows. number={}, timeout={}s",
+                    numberOfExpectedWindows, defaultTimeout, e);
+            throw e;
         }
     }
 
     public void numberOfWindowsToBe(int numberOfExpectedWindows, int timeOutInSeconds){
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try {
-            wait.until(ExpectedConditions.numberOfWindowsToBe(numberOfExpectedWindows));
+            wait(timeOutInSeconds).until(ExpectedConditions.numberOfWindowsToBe(numberOfExpectedWindows));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
-        }
-    }
-
-    public void elementToBeEnabled(By locator){
-        try {
-            waiter.until(ExpectedConditions.not(ExpectedConditions.attributeContains(driver.findElement(locator),  "disabled", "disabled")));
-            sleep(500);
-        }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Timeout waiting for the number of windows. number={}, timeout={}s",
+                    numberOfExpectedWindows, timeOutInSeconds, e);
+            throw e;
         }
     }
 
@@ -312,53 +319,63 @@ public class Waiters {
     public void attributeToBePresent(By locator, String attribute, int timeOutInSeconds) {
         logger.info(() -> "****** Waiting for attribute '" + attribute + "' to be present.");
         try {
-            new WebDriverWait(driver, Duration.ofSeconds(timeOutInSeconds))
-                    .until(d -> driver.findElement(locator).getAttribute(attribute) != null);
+            wait(timeOutInSeconds)
+                    .until(d -> d.findElement(locator).getAttribute(attribute) != null);
         } catch (TimeoutException e) {
-            logger.error(() -> "Attribute '" + attribute + "' was not present after " + timeOutInSeconds + " seconds.", e);
+            logger.error("Attribute '{}' was not present after {} seconds. Locator={}",
+                    attribute, timeOutInSeconds, locator, e);
             throw e;
         }
     }
 
     public void attributeToContainValue(By locator, String attribute, String value, int timeOutInSeconds) {
-        WebDriverWait wait = getWait(timeOutInSeconds);
         try{
-            wait.until(ExpectedConditions.attributeContains(driver.findElement(locator), attribute, value));
+            wait(timeOutInSeconds).until(ExpectedConditions.attributeContains(locator, attribute, value));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Attribute '{}' didn't contain value '{}' after {} seconds. Locator={}",
+                    attribute,value, timeOutInSeconds, locator, e);
+            throw e;
         }
     }
 
     public void attributeToContainValue(By locator, String attribute, String value) {
         try{
-            waiter.until(ExpectedConditions.attributeContains(driver.findElement(locator), attribute, value));
+            wait(defaultTimeout).until(ExpectedConditions.attributeContains(locator, attribute, value));
         }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+            logger.error("Attribute '{}' didn't contain value '{}' after {} seconds. Locator={}",
+                    attribute,value, defaultTimeout, locator, e);
+            throw e;
         }
         sleep(200);
     }
 
-    public void attributeToBeNotEmpty(By locator, String attribute) {
-        try{
-            waiter.until(ExpectedConditions.attributeToBeNotEmpty(driver.findElement(locator), attribute));
-        }catch (TimeoutException e){
-            logger.error(() -> e);
-            throw new TimeoutException(e);
+    public void attributeToBeNotEmpty(By locator, String attribute, int timeoutInSeconds) {
+        logger.info(() -> "****** Waiting for attribute '" + attribute + "' to be not empty.");
+        try {
+            wait(timeoutInSeconds)
+                    .until(d -> {
+                        String value = d.findElement(locator).getAttribute(attribute);
+                        return value != null && !value.isBlank();
+                    });
+
+        } catch (TimeoutException e) {
+            logger.error("Attribute '{}' was still empty after {} seconds. Locator={}",
+                    attribute, timeoutInSeconds, locator, e);
+            throw e;
         }
     }
 
     public void attributeToBeDifferentThan(By locator, String attribute, String value, int timeOutInSeconds) {
         logger.info(() -> "****** Waiting for attribute :: " + attribute + " to be different than :: " + value);
         try {
-            new WebDriverWait(driver, Duration.ofSeconds(timeOutInSeconds))
+            wait(timeOutInSeconds)
                     .until(d -> {
-                        String attrValue = driver.findElement(locator).getAttribute(attribute);
+                        String attrValue = d.findElement(locator).getAttribute(attribute);
                         return attrValue != null && !attrValue.isBlank() && !attrValue.equalsIgnoreCase(value);
                     });
         } catch (TimeoutException e) {
-            logger.error(() -> "Attribute '" + attribute + "' did not change from '" + value + "' after " + timeOutInSeconds + " seconds.", e);
+            logger.error("Attribute '{}' did not change from '{}' after {} seconds. Locator={}",
+                    attribute, value, timeOutInSeconds, locator, e);
             throw e;
         }
     }

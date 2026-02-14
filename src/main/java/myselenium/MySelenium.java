@@ -30,8 +30,7 @@ public class MySelenium {
 
     public List<WebElement> findElements(By locator){
         logger.log(Level.INFO, () -> String.format("****** Trying to find element with locator %s", locator));
-        this.waiters.allElementsToBePresent(locator);
-        return this.driver.findElements(locator);
+         return this.waiters.allElementsToBePresent(locator);
     }
 
     /**
@@ -113,6 +112,7 @@ public class MySelenium {
             click(locator);
         }
     }
+
     /**
      * This method clears the input and enters the new value.
      * @param locator
@@ -120,10 +120,10 @@ public class MySelenium {
      */
     public void forceClearingAndType(By locator, String value){
         logger.log(Level.INFO, () -> ("****** Trying to force clear & enter '"+ value + "' in " + locator.toString()));
-        WebElement element = findElement(locator);
-        element.sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        forceClear(locator);
         type(locator, value);
     }
+
     /**
      * For some inputs, the value is not text but in the value attribute.
      * To clear, we have to do backspaces
@@ -131,9 +131,9 @@ public class MySelenium {
      */
     public void forceClear(By locator){
         WebElement element = findElement(locator);
-        while (!element.getAttribute("value").isBlank()) {
-            element.sendKeys(Keys.BACK_SPACE);
-        }
+        element.click();
+        element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        element.sendKeys(Keys.DELETE);
     }
 
     /**
@@ -195,11 +195,6 @@ public class MySelenium {
      * @return boolean
      */
     public boolean isElementDisplayed(By locator){
-        try {
-            waiters.visibilityOf_NoCatch(locator);
-            return true;
-        } catch (TimeoutException e) {
-            return false;
-        }
+            return waiters.isVisible(locator,1);
     }
 }

@@ -6,7 +6,7 @@ import org.openqa.selenium.By;
 import pagesfactory.CommonPage;
 import utils.DriverFactory;
 import utils.Environment;
-import utils.Secrets;
+
 
 public class RegistrationPage extends CommonPage {
     private final Logger logger = LogManager.getLogger(RegistrationPage.class);
