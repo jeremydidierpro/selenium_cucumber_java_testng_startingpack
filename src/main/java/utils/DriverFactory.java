@@ -18,41 +18,32 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class DriverFactory {
-    private WebDriver driver;
     private final Logger logger = LogManager.getLogger(DriverFactory.class);
 
     /**
      * This method verifies the provided browser, the provided host, and whether remote mode is enabled. Then it sets the correct driver.
      */
-    public void setUpDriver() {
+    public WebDriver createDriver() {
+        WebDriver driver;
+        String browser = Config.browser().toLowerCase();
         if (Config.remote()) {
-            this.logger.info(() -> "Trying to set up the %s remote driver.".formatted(Config.browser()));
-            setupRemoteWebDriver();
+            this.logger.info(() -> "Trying to set up the %s remote driver.".formatted(browser));
+            driver = setupRemoteWebDriver(browser);
         } else {
-            this.logger.info(() -> "Trying to set up the %s driver.".formatted(Config.browser()));
-            setupLocalWebDriver();
+            this.logger.info(() -> "Trying to set up the %s driver.".formatted(browser));
+            driver = setupLocalWebDriver(browser);
         }
         driver.manage().deleteAllCookies();
-        setDriverSize();
-    }
-
-
-    public WebDriver getDriver() {
+        setDriverSize(driver, browser);
         return driver;
-    }
-
-    public void quitDriver() {
-        if (driver != null) {
-            driver.quit();
-        }
     }
 
     /**
      * This method sets up the remote WebDriver.
      */
-    public void setupRemoteWebDriver() {
+    private WebDriver setupRemoteWebDriver(String browser) {
         Capabilities capabilities;
-        switch (Config.browser()) {
+        switch (browser) {
             case "chrome" -> capabilities = new ChromeOptions();
             case "edge" -> capabilities = new EdgeOptions();
             case "firefox" -> capabilities = new FirefoxOptions();
@@ -60,7 +51,7 @@ public class DriverFactory {
         }
         String remoteUrl = "http://%s:%s".formatted(Config.host(), Config.port());
         try {
-            driver = new RemoteWebDriver(new URL(remoteUrl), capabilities);
+            return new RemoteWebDriver(new URL(remoteUrl), capabilities);
         } catch (MalformedURLException e) {
             logger.error(() -> "Incorrect remote url: %s".formatted(remoteUrl));
             throw new RuntimeException(e);
@@ -70,27 +61,33 @@ public class DriverFactory {
     /**
      * This method sets up the webDriver
      */
-    public void setupLocalWebDriver() {
-        switch (Config.browser().toLowerCase()) {
-            case "chrome" -> driver = new ChromeDriver();
-            case "firefox" -> driver = new FirefoxDriver();
-            case "edge" -> driver = new EdgeDriver();
+    private WebDriver setupLocalWebDriver(String browser) {
+        switch (browser) {
+            case "chrome" -> {
+                return new ChromeDriver();
+            }
+            case "firefox" -> {
+                return new FirefoxDriver();
+            }
+            case "edge" -> {
+                return new EdgeDriver();
+            }
             case "chrome_headless" -> {
                 ChromeOptions chromeOptions = new ChromeOptions();
                 chromeOptions.addArguments("--headless=new");
                 chromeOptions.addArguments("--window-size=1920,1080");
-                driver = new ChromeDriver(chromeOptions);
+                return new ChromeDriver(chromeOptions);
             }
             case "firefox_headless" -> {
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
                 firefoxOptions.addArguments("--headless");
-                driver = new FirefoxDriver(firefoxOptions);
+                return new FirefoxDriver(firefoxOptions);
             }
             case "edge_headless"-> {
                 EdgeOptions edgeOptions = new EdgeOptions();
                 edgeOptions.addArguments("--headless=new");
                 edgeOptions.addArguments("--window-size=1920,1080");
-                driver = new EdgeDriver(edgeOptions);
+                return new EdgeDriver(edgeOptions);
             }
             default -> throw new ValueNotFoundException("Unsupported browser: %s".formatted(Config.browser()));
         }
@@ -99,9 +96,9 @@ public class DriverFactory {
     /**
      * This method sets up the default browser size.
      */
-    public void setDriverSize() {
+    private void setDriverSize(WebDriver driver, String browser) {
         // We have to set a size for chrome_headless because the maximize method does not work on it.
-        if (Config.browser().equalsIgnoreCase("chrome_headless")) {
+        if (browser.equals("chrome_headless")) {
             driver.manage().window().setSize(new Dimension(1920, 1080));
         } else {
             driver.manage().window().maximize();

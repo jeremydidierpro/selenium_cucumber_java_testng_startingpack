@@ -2,17 +2,16 @@ package pagesfactory;
 
 import myselenium.MySelenium;
 import myselenium.Waiters;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import utils.DriverFactory;
+import utils.DriverManager;
 
 public class CommonPage {
     protected final WebDriver driver;
     protected final Waiters wait;
     protected final MySelenium mySelenium;
 
-    public CommonPage(DriverFactory driverFactory){
-        this.driver     = driverFactory.getDriver();
+    public CommonPage(DriverManager driverManager){
+        this.driver     = driverManager.getDriver();
         this.wait       = new Waiters(this.driver);
         this.mySelenium = new MySelenium(this.driver);
     }

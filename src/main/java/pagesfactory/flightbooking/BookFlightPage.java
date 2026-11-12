@@ -2,15 +2,15 @@ package pagesfactory.flightbooking;
 
 import org.openqa.selenium.By;
 import pagesfactory.CommonPage;
-import utils.DriverFactory;
+import utils.DriverManager;
 
 public class BookFlightPage extends CommonPage {
 
     private final By firstSubmitBtn = By.id("reserveFlights");
     private final By secondSubmitBtn = By.id("buyFlights");
 
-    public BookFlightPage(DriverFactory driverFactory) {
-        super(driverFactory);
+    public BookFlightPage(DriverManager driverManager) {
+        super(driverManager);
     }
 
     public void clickOnFirstSubmit(){

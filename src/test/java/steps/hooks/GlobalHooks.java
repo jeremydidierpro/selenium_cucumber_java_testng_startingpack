@@ -6,7 +6,6 @@ import com.aventstack.extentreports.markuputils.ExtentColor;
 import com.aventstack.extentreports.markuputils.Markup;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 import functions.sql.DBAccounts;
-import functions.sql.DataBaseManager;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -18,15 +17,18 @@ import org.openqa.selenium.WebDriver;
 import testcontext.CommonInstance;
 import utils.Config;
 import utils.DriverFactory;
+import utils.DriverManager;
 
 public class GlobalHooks {
     private final DriverFactory driverFactory;
+    private final DriverManager driverManager;
     private WebDriver driver;
     private CommonInstance commonInstance;
     private final Logger logger = LogManager.getLogger(GlobalHooks.class);
 
-    public GlobalHooks(DriverFactory driverFactory, CommonInstance commonInstance){
+    public GlobalHooks(DriverFactory driverFactory, DriverManager driverManager, CommonInstance commonInstance){
         this.driverFactory      = driverFactory;
+        this.driverManager = driverManager;
         this.commonInstance      = commonInstance;
     }
 
@@ -57,7 +59,7 @@ public class GlobalHooks {
                 pasteScreenShotInReports(scenario);
             }
         } finally{
-            driverFactory.quitDriver();
+            driverManager.quitDriver();
             DBAccounts.closeDBAccounts();
             logger.info(() -> "** The test '"+ scenario.getName() +"' has finished ");
             logger.info(() -> "The driver has been closed.\n");
@@ -65,8 +67,8 @@ public class GlobalHooks {
     }
 
     public void setupDriver(){
-        driverFactory.setUpDriver();
-        this.driver = driverFactory.getDriver();
+        driverManager.initializeDriver(driverFactory);
+        this.driver = driverManager.getDriver();
         logger.info(() -> "The driver is UP.");
     }
 

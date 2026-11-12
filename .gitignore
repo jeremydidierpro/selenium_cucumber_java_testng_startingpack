@@ -4,7 +4,7 @@ Logins/Logins.xlsx
 .idea/
 target/
 logs/
-src/java/recources/dataset/config.json
+src/main/resources/dataset/config.json
 /selenium-cucumber-project.iml
 src/test/resources/features/mytests/
 .env

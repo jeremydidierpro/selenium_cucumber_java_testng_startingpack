@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import pagesfactory.CommonPage;
-import utils.DriverFactory;
+import utils.DriverManager;
 import utils.Environment;
 
 
@@ -20,8 +20,8 @@ public class RegistrationPage extends CommonPage {
 
 
 
-    public RegistrationPage(DriverFactory driverFactory) {
-        super(driverFactory);
+    public RegistrationPage(DriverManager driverManager) {
+        super(driverManager);
     }
 
     public void load(){

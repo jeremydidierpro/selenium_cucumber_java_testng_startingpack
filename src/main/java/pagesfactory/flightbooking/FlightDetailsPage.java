@@ -2,7 +2,7 @@ package pagesfactory.flightbooking;
 
 import org.openqa.selenium.By;
 import pagesfactory.CommonPage;
-import utils.DriverFactory;
+import utils.DriverManager;
 
 public class FlightDetailsPage extends CommonPage {
 
@@ -10,8 +10,8 @@ public class FlightDetailsPage extends CommonPage {
     private final By passengers = By.id("passCount");
     private final By continueButton = By.id("findFlights");
 
-    public FlightDetailsPage(DriverFactory driverFactory) {
-        super(driverFactory);
+    public FlightDetailsPage(DriverManager driverManager) {
+        super(driverManager);
     }
 
     public void waitPage(){

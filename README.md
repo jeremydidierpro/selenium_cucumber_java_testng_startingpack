@@ -68,7 +68,7 @@ Additional modules are separated by responsibility:
 ## How to Run the Tests
 
 
-1. Copy `config_sample.json` and rename it to `config.json`
+1. Copy `src/main/resources/dataset/config_template.json` and rename it to `config.json`
 2. Adjust configuration values if needed
 3. Run:
 
@@ -81,6 +81,30 @@ or with optional parameters:
 mvn clean test  -DENVIRONMENT=qa -DBROWSER=chrome -DREMOTE=false -DHOST=localhost -DPORT=4444 -DRETRY=1 -DdpThreads=2 -Dcucumber.filter.tags=@SMOKE_TEST
 
 ```
+
+## Parallel execution with Selenium Grid
+
+`DriverFactory` creates WebDriver instances, while `DriverManager` stores one driver per test thread using `ThreadLocal`. This allows scenarios to run in parallel without sharing a driver between threads.
+
+Start the Selenium Grid and browser nodes with Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+Run the tests remotely with two TestNG DataProvider threads:
+
+```bash
+mvn test -DREMOTE=true -DBROWSER=chrome -DHOST=localhost -DPORT=4444 -DdpThreads=2 -Dcucumber.filter.tags=@SMOKE_TEST
+```
+
+Stop the Grid after the run:
+
+```bash
+docker compose down
+```
+
+The feature suite must contain at least two scenarios to observe parallel execution across multiple threads.
 
 ## GitHub Actions
 

@@ -3,7 +3,7 @@ package pagesfactory.flightbooking;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import pagesfactory.CommonPage;
-import utils.DriverFactory;
+import utils.DriverManager;
 
 public class RegistrationConfirmationPage extends CommonPage {
     private final By signinLink = By.partialLinkText("sign-in");
@@ -12,8 +12,8 @@ public class RegistrationConfirmationPage extends CommonPage {
 
 
 
-    public RegistrationConfirmationPage(DriverFactory driverFactory) {
-        super(driverFactory);
+    public RegistrationConfirmationPage(DriverManager driverManager) {
+        super(driverManager);
     }
 
     public void waitPage(){

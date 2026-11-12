@@ -3,7 +3,7 @@ package pagesfactory.flightbooking;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import pagesfactory.CommonPage;
-import utils.DriverFactory;
+import utils.DriverManager;
 
 public class FlightConfirmationPage extends CommonPage {
 
@@ -15,8 +15,8 @@ public class FlightConfirmationPage extends CommonPage {
 
 
 
-    public FlightConfirmationPage(DriverFactory driverFactory) {
-        super(driverFactory);
+    public FlightConfirmationPage(DriverManager driverManager) {
+        super(driverManager);
     }
 
     public void waitPage(){
